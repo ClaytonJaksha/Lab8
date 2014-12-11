@@ -30,8 +30,8 @@ unsigned int right_reading=0;
 unsigned int cent_reading=0;
 
 unsigned char state=0;
-// -----------------------------------------------------------------------
-// -----------------------------------------------------------------------
+```
+```
 void main(void) {
 	state=0;
 	initMSP430();
@@ -40,12 +40,16 @@ void main(void) {
 	stopRobot();
 	moveRobotForward();
 	__delay_cycles(18000000);
+```
+```
 	while(1){
 		_enable_interrupt();
 		left_reading=poll_left();
 		right_reading=poll_right();
 		cent_reading=poll_cent();
 		_disable_interrupt();
+```
+```
 		if (state==0){
 			if (DETECT_CENT&&CLEAR_LEFT){
 				stopRobot();
@@ -76,20 +80,8 @@ void main(void) {
 		}
 	}
 } // end main
-
-// -----------------------------------------------------------------------
-// In order to decode IR packets, the MSP430 needs to be configured to
-// tell time and generate interrupts on positive going edges.  The
-// edge sensitivity is used to detect the first incoming IR packet.
-// The P2.6 pin change ISR will then toggle the edge sensitivity of
-// the interrupt in order to measure the times of the high and low
-// pulses arriving from the IR decoder.
-//
-// The timer must be enabled so that we can tell how long the pulses
-// last.  In some degenerate cases, we will need to generate a interrupt
-// when the timer rolls over.  This will indicate the end of a packet
-// and will be used to alert main that we have a new packet.
-// -----------------------------------------------------------------------
+```
+```
 void initMSP430() {
 
 	IFG1=0; 					// clear interrupt flag1
@@ -127,9 +119,7 @@ void initMSP430() {
 }
 ```
 
-#### Hardware Implementation
 
-![alt text](http://i.imgur.com/gvoO1bs.jpg "Robert's brainzzzzz")
 
 
 ## Debugging
