@@ -19,9 +19,9 @@ This is how the hardware will be implemented. In short, analog signals come from
 ## Code Walkthrough
 ### Basic Functionality
 ###### Taken from `main.c`
+This portion of `main.c` is primarily concerned with initialization. We first declare of MSP430 device-specific library, then our motor function library (`functions.h`), and then our sensor library (`sensors.h`). After that, we declare our global variables that need to be used throughout the different files.
 ```
 #include <msp430g2553.h>
-#include "start5.h"
 #include "functions.h"
 #include "sensors.h"
 
@@ -81,44 +81,6 @@ void main(void) {
 	}
 } // end main
 ```
-```
-void initMSP430() {
-
-	IFG1=0; 					// clear interrupt flag1
-	WDTCTL=WDTPW+WDTHOLD; 		// stop WD
-
-	BCSCTL1 = CALBC1_8MHZ;
-	DCOCTL = CALDCO_8MHZ;
-
-	P1DIR |= BIT0|BIT6;                     // set LEDs to output
-
-	P2SEL  &= ~BIT6;						// Setup P2.6 as GPIO not XIN
-	P2SEL2 &= ~BIT6;
-	P2DIR &= ~BIT6;
-	P2IFG &= ~BIT6;						// Clear any interrupt flag
-	P2IE  |= BIT6;						// Enable PORT 2 interrupt on pin change
-
-	HIGH_2_LOW;
-	P1DIR |= BIT0 | BIT6;				// Enable updates to the LED
-	P1OUT &= ~(BIT0 | BIT6);			// An turn the LED off
-
-	TA0CCR0 = 0x8000;					// create a 16mS roll-over period
-	TACTL &= ~TAIFG;					// clear flag before enabling interrupts = good practice
-	TACTL = ID_3 | TASSEL_2 | MC_1;		// Use 1:1 presclar off MCLK and enable interrupts
-
-
-	//set up left wheel PWM
-	P2DIR |= (BIT1|BIT3|BIT4|BIT5);
-	P2OUT &= ~(BIT3|BIT4);
-	TA1CTL = ID_3 | TASSEL_2 | MC_1;		// Use 1:8 presclar off MCLK
-    TA1CCR0 = 0x0100;						// set signal period
-    TA1CCR1 = 0x0080;
-    TA1CCTL1 = OUTMOD_3;					// set TACCTL1 to Reset / Set mode
-    TA1CCR2 = 0x0080;
-    TA1CCTL2 = OUTMOD_3;
-}
-```
-
 
 
 
