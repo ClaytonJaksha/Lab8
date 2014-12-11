@@ -4,11 +4,11 @@ Lab 8
 ## Objective and Purpose
 ### Objective
 
-The objective of this lab is to use pulse-width modulation to drive our robot's (hereafter referred to as "Robert") main wheels.
+The objective of this lab is to use the robot's IR sensors to navigate it through a simple maze.
 
 ### Purpose
 
-To begin incorporating course concepts on the final course project.
+To incorporate all course concepts into a single lab and enjoy some practical computer engineering!
 
 
 ## Preliminary Design
