@@ -14,7 +14,8 @@ To incorporate all course concepts into a single lab and enjoy some practical co
 ## Preliminary Design
 My robot's maze-solving algorith is a very simple state machine. It essentially moves forward until it sees a wall on the center sensor. Then, it tank turns left until the wall it no longer visible to the front sensor. Then, it slow turns to the right (back into the wall) until it detects the wall again. To give the robot some hysteresis, we set two thresholds. One for leaving the wall, one for coming into the wall.
 ![alt text](http://i.imgur.com/3YQ8lxV.jpg "Robert's brainzzzzz")
-
+This is how the hardware will be implemented. In short, analog signals come from the sensor, are turned into digital signal by the MSP430, processed by the MSP430, turned into PWM signals by the MSP430, then the signals drive the motors through the motor driver chip.
+![alt text](http://i.imgur.com/yU7kfZz.jpg "Robert's brainzzzzz")
 ## Code Walkthrough
 ### Basic Functionality
 ###### Taken from `main_basic.c`
