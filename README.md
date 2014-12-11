@@ -314,5 +314,5 @@ Robert the robot can move in a controlled, exact manner by himself or with comma
 None
 
 
-# SONS OF SLUM AND GRAVY TAKE NO QUARTER
-![alt text](http://farm7.static.flickr.com/6120/6300471005_c44f5ef019.jpg "GO ARMY, BEAT NAVY")
+
+![alt text](https://scontent-a-lax.xx.fbcdn.net/hphotos-xap1/v/t1.0-9/74267_549500225064244_1378381565_n.jpg?oh=38f2ad443d39282026c478279ec6d1fa&oe=5543E6BF "...and beat Air Force too")
