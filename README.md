@@ -18,43 +18,78 @@ This is how the hardware will be implemented. In short, analog signals come from
 ![alt text](http://i.imgur.com/yU7kfZz.jpg "Robert's brainzzzzz")
 ## Code Walkthrough
 ### Basic Functionality
-###### Taken from `main_basic.c`
-This is the basic initialization for functionality of the code. It includes all the necessary header files and that's basically it. The basic functionality code is pretty simple.
+###### Taken from `main.c`
 ```
 #include <msp430g2553.h>
 #include "start5.h"
 #include "functions.h"
-```
-This is the main loop script. It changes the settings for the outputs, delays, changes again, delays again, etc. The explanation for each individual function can be found in `functions.c`. However, to offer a quick summary, all that happens is the OUTMOD and GPIO pins switch in accordance with the desired movement.
-```
-void main(void) {
+#include "sensors.h"
 
+unsigned int left_reading=0;
+unsigned int right_reading=0;
+unsigned int cent_reading=0;
+
+unsigned char state=0;
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+void main(void) {
+	state=0;
 	initMSP430();
-	P2OUT&=~(BIT4|BIT2|BIT1|BIT5); // ensure everything is stopped before we begin.
+	P1DIR |= BIT0|BIT6;
+	P1OUT &=~(BIT0|BIT6);
 	stopRobot();
+	moveRobotForward();
+	__delay_cycles(18000000);
 	while(1){
-	moveRobotForward();
-	__delay_cycles(10000000);
-	moveRobotLeft();
-	__delay_cycles(3500000);
-	moveRobotForward();
-	__delay_cycles(10000000);
-	moveRobotRight();
-	__delay_cycles(3500000);
-	moveRobotBackwards();
-	__delay_cycles(10000000);
-	moveRobotLeftSlow();
-	__delay_cycles(20000000);
-	moveRobotForward();
-	__delay_cycles(5000000);
-	moveRobotRightSlow();
-	__delay_cycles(20000000);
-	moveRobotLeftSlow();
+		_enable_interrupt();
+		left_reading=poll_left();
+		right_reading=poll_right();
+		cent_reading=poll_cent();
+		_disable_interrupt();
+		if (state==0){
+			if (DETECT_CENT&&CLEAR_LEFT){
+				stopRobot();
+				__delay_cycles(2000);
+				moveRobotLeft();
+				state=1;
+			} else{
+				moveRobotForward();
+				state=0;
+			}
+		} else if (state==1){
+			if (CLEAR_CENT){
+				moveRobotRightSlow();
+				state=2;
+			} else{
+				moveRobotLeft();
+				state=1;
+			}
+		} else if (state==2){
+			if (DETECT_CENT){
+				stopRobot();
+				moveRobotLeft();
+				state=1;
+			} else{
+				moveRobotRightSlow();
+				state=2;
+			}
+		}
 	}
 } // end main
-```
-This is the initialization for the MSP430 with its outputting setup. I keep the LED outputs enabled as a way to troubleshoot when something goes wrong. I set up `P2.1`, `P2.3`, `P2.4`, and `P2.5` as outputs and then change the way which they are outputted in the main loop.
-```
+
+// -----------------------------------------------------------------------
+// In order to decode IR packets, the MSP430 needs to be configured to
+// tell time and generate interrupts on positive going edges.  The
+// edge sensitivity is used to detect the first incoming IR packet.
+// The P2.6 pin change ISR will then toggle the edge sensitivity of
+// the interrupt in order to measure the times of the high and low
+// pulses arriving from the IR decoder.
+//
+// The timer must be enabled so that we can tell how long the pulses
+// last.  In some degenerate cases, we will need to generate a interrupt
+// when the timer rolls over.  This will indicate the end of a packet
+// and will be used to alert main that we have a new packet.
+// -----------------------------------------------------------------------
 void initMSP430() {
 
 	IFG1=0; 					// clear interrupt flag1
@@ -90,137 +125,7 @@ void initMSP430() {
     TA1CCR2 = 0x0080;
     TA1CCTL2 = OUTMOD_3;
 }
-
 ```
-
-### A Functionality
-###### Taken from `main.c`
-This is the initialization. It does pretty much the same thing as basic functionality, with the added pieces like `packetData[]` and `packetIndex` that make the IR sensor reading work.
-```
-#include <msp430g2553.h>
-#include "start5.h"
-#include "functions.h"
-int8	newIrPacket = FALSE;
-int32	packetData[48];
-int8	packetIndex = 0;
-unsigned char new_packet=FALSE;
-```
-This is the main loop for A Functionality. It is a bit more complex, so I will break it down into pieces. 
-
-The first part handles initialization of the MSP430 and all the local variables needed for operation. Once we enable interrupts, it's game on.
-```
-void main(void) {
-
-	initMSP430();				// Setup MSP to process IR and buttons
-	int32 bitstring=0x00000000;
-	int32	i;
-	int8	packetIndex2=0;
-	stopRobot();
-	_enable_interrupt();
-```
-This is the infinite while loop portion of the main loop---it's where the action happens. The first things that happen in this loop are all geared towards decoding `packetData[]` and turning that into `bitstring`.
-```
-	while(1)  {
-		if (new_packet) {
-			_disable_interrupt();
-			packetIndex2=0;
-			while (packetData[packetIndex2]!=2)
-			{
-				packetIndex2++;
-			}
-			packetIndex2++;
-			while (packetIndex2<33)
-			{
-				bitstring+=packetData[packetIndex2];
-				bitstring<<=1;
-				packetIndex2++;
-			}
-```
-Once we have settled down what `bitstring` is, we compare it with known buttons, and then execute a command for the robot based on what button is detected. If we get a `bitstring` that is unrecognized, we will stop Robert from doing anythings else. This is a safety feature in case of malfunction.
-```
-			if (bitstring==BUTTON_FIVE)
-			{
-				stopRobot();
-			} else if (bitstring==BUTTON_TWO)
-			{
-				moveRobotForward();
-			} else if (bitstring==BUTTON_FOUR)
-			{
-				moveRobotLeft();
-			} else if (bitstring==BUTTON_SIX)
-			{
-				moveRobotRight();
-			} else if (bitstring==BUTTON_EIGHT)
-			{
-				moveRobotBackwards();
-			} else if (bitstring==BUTTON_ONE)
-			{
-				moveRobotLeftSlow();
-			} else if (bitstring==BUTTON_THREE)
-			{
-				moveRobotRightSlow();
-			} else
-			{
-				stopRobot();
-			}
-```
-After this, we delay a little to prevent ghost bit interrupts from the remote control and then reset everything to get ready for the next button press.
-```
-			for (i=0;i<0xFFFFF;i++);
-			bitstring=0x00000000;
-			packetIndex=0;
-			_enable_interrupt();
-			new_packet=0;
-		} else
-		{
-			bitstring=0x00000000;
-		}
-	} // end infinite loop
-} // end main
-```
-Here we define our ISR. It is meant to trigger of P2.6, so we use `PORT2_VECTOR`. Basically, what the interrupt does is interrupt each time P2.6 (which is connected to the IR sensor) edge triggers, counts how long it stays at `1`, decides whether it's a `0` or `1`, then stores that value into `packetData`. Once we've triggered 34 times (which is enough to get a unique message from the remote), we flag and our main loop takes care of the rest.
-
-```
-#pragma vector = PORT2_VECTOR			// This is from the MSP430G2553.h file
-
-__interrupt void pinChange (void) {
-
-	int8	pin;
-	int16	pulseDuration;
-
-	P2IFG &= ~BIT6;
-	if (IR_PIN)		pin=1;	else pin=0;
-
-	switch (pin) {					// read the current pin level
-		case 0:						// !!!!!!!!!NEGATIVE EDGE!!!!!!!!!!
-			pulseDuration = TAR;
-			if ((pulseDuration>minStartPulse)&&(pulseDuration<maxStartPulse))
-			{
-				pulseDuration=2;
-			} else if ((pulseDuration>minLogic0Pulse)&&(pulseDuration<maxLogic0Pulse))
-			{
-				pulseDuration=0;
-			} else if ((pulseDuration>minLogic1Pulse)&&(pulseDuration<maxLogic1Pulse))
-			{
-				pulseDuration=1;
-			}
-			packetData[packetIndex++] = pulseDuration;
-			LOW_2_HIGH; 				// Setup pin interrupr on positive edge
-			break;
-
-		case 1:							// !!!!!!!!POSITIVE EDGE!!!!!!!!!!!
-			TAR = 0x0000;						// time measurements are based at time 0
-			HIGH_2_LOW; 						// Setup pin interrupr on positive edge
-			break;
-	} // end switch
-	if (packetIndex>33)
-	{
-		new_packet=1;
-	}
-} // end pinChange ISR
-```
-
-Initialization remained exactly the same from basic functionality, so I will not re-explain them.
 
 #### Hardware Implementation
 
