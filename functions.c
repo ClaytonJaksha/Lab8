@@ -1,9 +1,9 @@
-/*
- * functions.c
- *
- *  Created on: Nov 14, 2014
- *      Author: c16clayton.jaksha
- */
+//-----------------------------------------------------------------
+// Name:	Jaksha
+// File:	functions.c
+// Date:	Fall 2014
+// Purp:	function library for motor driving
+//-----------------------------------------------------------------
 #include <msp430g2553.h>
 #include "functions.h"
 void moveRobotForward(void)
