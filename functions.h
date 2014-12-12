@@ -1,12 +1,12 @@
-/*
- * functions.h
- *
- *  Created on: Nov 5, 2014
- *      Author: c16clayton.jaksha
- */
+//-----------------------------------------------------------------
+// Name:	Jaksha
+// File:	functions.h
+// Date:	Fall 2014
+// Purp:	header file for motor functions
+//-----------------------------------------------------------------
 
-#ifndef START5_H_
-#define START5_H_
+#ifndef FUNCTIONS_H_
+#define FUNCTIONS_H_
 #define SUPER_FULL_SPEED_LEFT 0x0055
 #define FULL_SPEED_LEFT 0x0080
 #define FULL_SPEED_RIGHT 0x0070
