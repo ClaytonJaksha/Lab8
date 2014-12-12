@@ -1,9 +1,9 @@
-/*
- * sensors.c
- *
- *  Created on: Dec 3, 2014
- *      Author: c16clayton.jaksha
- */
+//-----------------------------------------------------------------
+// Name:	Jaksha
+// File:	sensors.c
+// Date:	Fall 2014
+// Purp:	function library for using robot IR sensors
+//-----------------------------------------------------------------
 #include <msp430.h>
 #include "sensors.h"
 
