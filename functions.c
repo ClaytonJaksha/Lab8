@@ -8,18 +8,18 @@
 #include "functions.h"
 void moveRobotForward(void)
 {
-	TA1CCR1 = FULL_SPEED_LEFT;
+	TA1CCR1 = FULL_SPEED_LEFT;		//set the PWM duty cycle equal on both wheels
 	TA1CCR2 = FULL_SPEED_RIGHT;
-	TA1CCTL1 = OUTMOD_3;
+	TA1CCTL1 = OUTMOD_3;			//both wheels forward
 	TA1CCTL2 = OUTMOD_3;
-	P2SEL |= (BIT1|BIT5);
+	P2SEL |= (BIT1|BIT5);			//enable wheels
 	P2OUT &=~(BIT3|BIT4);
 }
 void moveRobotBackwards(void)
 {
 	TA1CCR1 = FULL_SPEED_LEFT;
 	TA1CCR2 = FULL_SPEED_RIGHT;
-	TA1CCTL1 = OUTMOD_7;
+	TA1CCTL1 = OUTMOD_7;			//both wheels backwards
 	TA1CCTL2 = OUTMOD_7;
 	P2SEL |= BIT1|BIT5;
 	P2OUT |= (BIT3|BIT4);
@@ -28,7 +28,7 @@ void moveRobotLeft(void)
 {
 	TA1CCR1 = FULL_SPEED_LEFT;
 	TA1CCR2 = FULL_SPEED_RIGHT;
-	TA1CCTL1 = OUTMOD_7;
+	TA1CCTL1 = OUTMOD_7;			//one wheel forward, one backwards
 	TA1CCTL2 = OUTMOD_3;
 	P2SEL |= BIT1|BIT5;
 	P2OUT |= BIT3;
