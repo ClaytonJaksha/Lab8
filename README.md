@@ -28,9 +28,9 @@ This portion of `main.c` is primarily concerned with initialization. We first de
 unsigned int left_reading=0;
 unsigned int right_reading=0;
 unsigned int cent_reading=0;
-
 unsigned char state=0;
 ```
+This is the beginning of our main loop and the initialization of our state machine. We start by setting our state at zero, indicating the initial first state. Then we initialize the MSP430 to prepare it for PWM outputs and A/D inputs (`initMSP30() `). The exacts of that function can be found in labs 6 and 7, where the focus was primarily on making those systems work. This lab's focus is on the overall robot functionality, so I will not delve into it. We then set out LEDs as outputs and turn them off, stop our robot, and then launch it into its initial state. The existing delay is just to prevent it from entering any bad states upon startup.
 ```
 void main(void) {
 	state=0;
@@ -41,6 +41,7 @@ void main(void) {
 	moveRobotForward();
 	__delay_cycles(18000000);
 ```
+This is the beginning of our infinite loop. This part polls each sensor for a value for the robot to act off of. We enable and disable interrupts only here so that way our program is not interrupted during other parts where we do not want to be interrupted for any reason.
 ```
 	while(1){
 		_enable_interrupt();
@@ -49,6 +50,7 @@ void main(void) {
 		cent_reading=poll_cent();
 		_disable_interrupt();
 ```
+This portion of the code executes the state machine. You can clearly see each of the three states in the `if` statements. For state 0, if the robot detects a wall in the center and is clear on the left sensor, then it will stop briefly and then enter state 1 where it begins turning left in a tank turn. Similarly, in state 1, when the robot stops detecting a wall, then it will enter state 2 wherein it makes a slow turn back into the wall.
 ```
 		if (state==0){
 			if (DETECT_CENT&&CLEAR_LEFT){
@@ -91,23 +93,21 @@ Debugging was primarily done by looking at the Nokia 1202 display and the stored
 ## Testing Methodology/Results
 
 #### Testing Methodology
-To test the funcionality of my program, I attached the hardware IAW the diagram in my deisgn section, loaded the program, ran the program, and pressed buttons on my remote (or let the robot run). If it did what I wanted, then it passed the test.
+To test the funcionality of my program, I attached the hardware IAW the diagram in my deisgn section, loaded the program, ran the program, and pressed buttons on my remote (or let the robot run). Initially, I tested the robot by putting my hands close to the sensors and seeing if the robot's wheels reacted how I planned. Once that worked, then I placed it into the maze and looked at its behaviors. I also programmed LEDs into the sensors so I could tell what sensors the robot was looking at. If it did what I wanted, then it passed the test.
 #### Results
 The code works!
-##### Basic Functionality
-Robert the robot followed the script to the letter and did exactly what it was supposed to do.
-##### A Functionality
-By pressing buttons, Robert would respond exactly how I expected.
+##### Basic/B/A Functionality
+My robot was able to successfully navigate from the start point to the end door (farthest from the start) using the IR sensiors, hitting the wall only once, and completing the task in under two minutes. This run constitutes A functionality, which counts for basic and B functionality as well.
 
 ## Observations and Conclusion
 #### Observations
 
 * Reusing previous .c and .h files can make coding faster and modular.
-* Hardware can be tricky, read datasheets!
+* IR sensors are very hardware and context dependent. Sometimes they work how you expect them, sometimes they don't.
 
 #### Conclusion
 
-Robert the robot can move in a controlled, exact manner by himself or with commands from a user. Be afraid, be very afraid.
+Robert the robot can use wall-following algorithms to successfully navigate a maze.
 
 ## Documentation
 
