@@ -1,9 +1,9 @@
-/*
- * sensors.h
- *
- *  Created on: Dec 3, 2014
- *      Author: c16clayton.jaksha
- */
+//-----------------------------------------------------------------
+// Name:	Jaksha
+// File:	main.c
+// Date:	Fall 2014
+// Purp:	header file for sensor library
+//-----------------------------------------------------------------
 
 #ifndef SENSORS_H_
 #define SENSORS_H_
